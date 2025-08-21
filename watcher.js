@@ -50,19 +50,18 @@ chokidar.watch(WATCH_PATH, { ignoreInitial: true, awaitWriteFinish: { stabilityT
         }
     }
 
-
-
     try {
         const { size } = fs.statSync(filePath);
         console.log('Upload size:', size, 'bytes (~', (size / 1024 / 1024).toFixed(2), 'MB)');
 
         const form = new FormData();
+        // append the file to the form data
         form.append('file', fs.createReadStream(filePath));
+        // message content payload
         form.append('payload_json', JSON.stringify({ content: `File Upload Successful :D` }));
 
-        await axios.post(WEBHOOK_URL, form, {
-            headers: form.getHeaders()
-        });
+        // post the form data to the Discord webhook URL
+        await axios.post(WEBHOOK_URL, form, { headers: form.getHeaders() });
 
         console.log("Uploaded to Discord!");
     } catch (err) {
