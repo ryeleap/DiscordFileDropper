@@ -42,7 +42,7 @@ chokidar.watch(WATCH_PATH, { ignoreInitial: true, awaitWriteFinish: { stabilityT
     } else {
         const ext = path.extname(filePath).toLowerCase();
         if (ext === ".txt" || ext === ".md" || ext === ".log" || ext === ".json" || ext === ".csv" || ext === ".html") {
-            console.log("Text file detected (hardcode for certain files)");
+            console.log("Text file detected (hardcoded fallback for certain extensions):", ext);
             WEBHOOK_URL = process.env.TEXTWEBHOOKURL;
         } else {
             console.log("Unknown file type, skipping:", filePath);
@@ -52,10 +52,9 @@ chokidar.watch(WATCH_PATH, { ignoreInitial: true, awaitWriteFinish: { stabilityT
 
 
 
-    // setTimeout(async () => {
     try {
         const { size } = fs.statSync(filePath);
-        console.log('Upload size:', size, 'bytes (~', (size / 1024 / 1024).toFixed(2), 'MiB)');
+        console.log('Upload size:', size, 'bytes (~', (size / 1024 / 1024).toFixed(2), 'MB)');
 
         const form = new FormData();
         form.append('file', fs.createReadStream(filePath));
@@ -69,6 +68,5 @@ chokidar.watch(WATCH_PATH, { ignoreInitial: true, awaitWriteFinish: { stabilityT
     } catch (err) {
         console.error("Upload failed:", err.message);
     }
-    // }, 10000); // delay because of weird protection on upload files
 });
 
