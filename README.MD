@@ -1,4 +1,4 @@
-# LilligantHelper Discord Uploader
+# Discord File Dropper
 
 This Node.js script watches a folder for new files and automatically uploads them to different Discord channels (via webhooks) based on file type.
 
