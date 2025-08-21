@@ -1,6 +1,6 @@
 # Discord File Dropper
 
-This Node.js script watches a folder for new files and automatically uploads them to different Discord channels (via webhooks) based on file type.
+This Node.js script watches a folder for new files and automatically uploads them to different Discord channels (via webhooks) based on file type. This is TOS compliant and cannot upload file exceeding defined limits (though the limits can change based on server boost level.)
 
 ## How it Works
 - Uses chokidar to watch a folder for new files.
