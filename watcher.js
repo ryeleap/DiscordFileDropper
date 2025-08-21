@@ -1,37 +1,74 @@
+const fs = require("fs");
+const path = require("path");
 const dotenv = require('dotenv');
 dotenv.config();
 
-const chokidar = require('chokidar');
-const axios = require('axios');
-const fs = require('fs');
-const FormData = require('form-data');
-
-// replace with you webhook (channel -> integrations -> webhooks -> create webhook)
-const WEBHOOK_URL = process.env.WEBHOOKURL;
+const axios = require("axios");
+const FormData = require("form-data");
+const fileType = require("file-type");
+const chokidar = require("chokidar");
 
 // folder to watch
 const WATCH_PATH = process.env.FOLDERPATH;
 
-// watch for new files
-chokidar.watch(WATCH_PATH, { ignoreInitial: true }).on('add', async (filePath) => {
+// webhook URL to discord 
+var WEBHOOK_URL;
+
+// watch for new files, threshold is minimum time that file must be stable, polling interval is how often to check for those changes
+chokidar.watch(WATCH_PATH, { ignoreInitial: true, awaitWriteFinish: { stabilityThreshold: 2000, pollInterval: 100 } }).on('add', async (filePath) => {
     const now = new Date();
     console.log("File uploaded at", now.toLocaleTimeString(), "on", now.toLocaleDateString());
-    console.log("File path:", filePath);
+    console.log("File path:", filePath, '\n');
 
-    setTimeout(async () => {
-        try {
-            const form = new FormData();
-            form.append('file', fs.createReadStream(filePath));
-            form.append('payload_json', JSON.stringify({ content: `File Upload Successful :D` }));
+    const type = await fileType.fromFile(filePath);
 
-            await axios.post(WEBHOOK_URL, form, {
-                headers: form.getHeaders()
-            });
-
-            console.log("Uploaded to Discord!");
-        } catch (err) {
-            console.error("Upload failed:", err.message);
+    if (type?.mime) {
+        if (type.mime.startsWith("image/")) {
+            console.log("Image file detected:", type.mime);
+            WEBHOOK_URL = process.env.IMAGEWEBHOOKURL;
+        } else if (type.mime.startsWith("video/")) {
+            console.log("Video file detected:", type.mime);
+            WEBHOOK_URL = process.env.VIDEOWEBHOOKURL;
+        } else if (type.mime.startsWith("audio/")) {
+            console.log("Audio file detected:", type.mime);
+            WEBHOOK_URL = process.env.AUDIOWEBHOOKURL;
+        } else if (type.mime.startsWith("application/")) {
+            console.log("Application file detected:", type.mime);
+            WEBHOOK_URL = process.env.APPWEBHOOKURL;
+        } else {
+            console.log("Unsupported MIME type (I either haven't added it yet or it's obscure and you can add it yourself!):", type.mime);
+            return;
         }
-    }, 2000); // delay because of weird protection on upload files
+    } else {
+        const ext = path.extname(filePath).toLowerCase();
+        if (ext === ".txt" || ext === ".md" || ext === ".log" || ext === ".json" || ext === ".csv" || ext === ".html") {
+            console.log("Text file detected (hardcode for certain files)");
+            WEBHOOK_URL = process.env.TEXTWEBHOOKURL;
+        } else {
+            console.log("Unknown file type, skipping:", filePath);
+            return;
+        }
+    }
+
+
+
+    // setTimeout(async () => {
+    try {
+        const { size } = fs.statSync(filePath);
+        console.log('Upload size:', size, 'bytes (~', (size / 1024 / 1024).toFixed(2), 'MiB)');
+
+        const form = new FormData();
+        form.append('file', fs.createReadStream(filePath));
+        form.append('payload_json', JSON.stringify({ content: `File Upload Successful :D` }));
+
+        await axios.post(WEBHOOK_URL, form, {
+            headers: form.getHeaders()
+        });
+
+        console.log("Uploaded to Discord!");
+    } catch (err) {
+        console.error("Upload failed:", err.message);
+    }
+    // }, 10000); // delay because of weird protection on upload files
 });
 
