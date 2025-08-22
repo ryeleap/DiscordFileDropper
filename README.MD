@@ -7,7 +7,7 @@ This Node.js script watches a folder for new files and automatically uploads the
 - Detects file type using file-type.  
   - Falls back to file extension for plain text formats like .txt, .md, .log, .json, .csv, .html.
 - Routes the upload to the correct Discord webhook based on MIME type (image, video, audio, text, application).
-- Uploads the file with a short, configuraable message (`File Upload Successful :D`).
+- Uploads the file with a short, configurable message .
 
 ## Setup
 1. Clone this project with ```git clone https://github.com/ryeleap/LilligantHelper.git``` 
@@ -19,15 +19,18 @@ This Node.js script watches a folder for new files and automatically uploads the
    AUDIOWEBHOOKURL=https://discord.com/api/webhooks/xxx/yyy
    TEXTWEBHOOKURL=https://discord.com/api/webhooks/xxx/yyy
    APPWEBHOOKURL=https://discord.com/api/webhooks/xxx/yyy
+   ZIPPEDWEBHOOKURL = https://discord.com/api/webhooks/xxx/yyy
+
    ```
 
    - Note: **Make absolute sure that your file path has forward slashes instead of back slashes, will break otherwise**
+   - Note 2: These don't NEED to be seperate webhooks, just my personal preference
    - Replace the webhook URLs with ones from your Discord server.
 
 4. Run the script:
    node watcher.js
 
 ## Notes
-- Upload limits: Discord enforces 8 MB max file size for free servers. Larger files will fail with a 413 Request Entity Too Large error unless your server is boosted or you use Nitro-supported webhooks.  
+- Upload limits: Discord enforces 8 MB max file size for free servers. Larger files will fail with a 413 Request Entity Too Large error unless your server is boosted or you use Nitro-supported webhooks. The zipping functionality is an attempt to improve the flexibility of this system, but it isn't perfect and won't function well on most video or installer files, as they are already well optimized
 - Stability settings: Files are only uploaded once they’ve stopped changing for 2 seconds (stabilityThreshold) to avoid grabbing files mid-write.  
 - Supports images, videos, audio, text (hard coded for now), and applications. Unknown file types are skipped.  
