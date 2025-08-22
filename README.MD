@@ -23,7 +23,7 @@ This script watches a folder for new files and automatically uploads them to dif
    ```
 
    - Note: **Make absolute sure that your file path has forward slashes instead of back slashes, will break otherwise**
-   - Note 2: These don't NEED to be seperate webhooks, just my personal preference
+   - Note 2: **These don't NEED to be seperate webhooks, just my personal preference**
    - Replace the webhook URLs with ones from your Discord server.
 
 4. Run the script:
