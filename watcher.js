@@ -76,6 +76,7 @@ chokidar.watch(WATCH_PATH, {
                 WEBHOOK_URL = process.env.TEXTWEBHOOKURL;
             } else {
                 console.log("Unknown file type, skipping:", uploadPath);
+                rl.close();
                 return;
             }
         }
@@ -83,6 +84,7 @@ chokidar.watch(WATCH_PATH, {
 
     if (!WEBHOOK_URL) {
         console.error("No webhook URL resolved. Check your .env values.");
+        rl.close();
         return;
     }
 
@@ -91,7 +93,7 @@ chokidar.watch(WATCH_PATH, {
         console.log("Upload size:", size, "bytes (~", (size / 1024 / 1024).toFixed(2), "MB)");
 
         const answer2 = (await ask("Do you want to add a message? (Y/N) ")).trim().toLowerCase();
-        if (answer === "y") {
+        if (answer2 === "y") {
             contentTxt = (await ask("Enter your message: ")).trim();
             if (!contentTxt) {
                 console.log("No message provided, using default.");
